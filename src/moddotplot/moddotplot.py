@@ -131,6 +131,18 @@ def get_parser():
         help="Path to input fasta file(s).",
         nargs="+",
     )
+    
+    static_parser.add_argument(
+        "--cenpa-bw",
+        default=argparse.SUPPRESS,
+        help="Path to CENPA bigwig file"
+    )
+    
+    static_parser.add_argument(
+        "--bedmethyl",
+        default=argparse.SUPPRESS,
+        help="Path to methylation bedmethyl file"
+    )
 
     # Add a mutually exclusive group for compare and compare only.
     static_compare_group = static_parser.add_mutually_exclusive_group(required=False)
@@ -626,16 +638,14 @@ def main():
                     f"Saved self-identity matrix as a paired-end bed file to {bedfile_output}\n"
                 )
 
-            # load additional tracks
+            # load additional tracks (JTS custom version)
             
             # methylation
-            fn = "~/incoming/mole_rat/t2t_qc/publication_figures/data/pup_5mC_merged.cleaned.bed"
-            mdf = read_bedmethyl(fn)
+            mdf = read_bedmethyl(args.bedmethyl)
             mdf["percent"] = 100.0 * mdf["n_mod"] / mdf["n_valid_cov"]
             
             # cenpa
-            bw_path = "/Users/jsimpson/incoming/mole_rat/t2t_qc/publication_figures/data/WL3840_CENPA_liver_MA1-20832_hgla_4814_none_TCAG1.bw"
-            bw = pyBigWig.open(bw_path)
+            bw = pyBigWig.open(args.cenpa_bw)
             values = bw.values(seq_range[0], seq_range[1], seq_range[2])
             bw.close()
 
